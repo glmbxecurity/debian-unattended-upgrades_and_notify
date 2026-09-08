@@ -17,11 +17,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=== [1/5] Instalando dependencias de paquetes ==="
 apt-get update -q
-apt-get install -y unattended-upgrades apt-listchanges libnotify-bin python3-apt curl
+apt-get install -y unattended-upgrades apt-listchanges libnotify-bin python3-apt curl wget jq sudo lsb-release
 
 if ! command -v deb-get >/dev/null 2>&1; then
     echo "  [+] deb-get no detectado. Instalando deb-get oficialmente..."
-    curl -sL https://raw.githubusercontent.com/wimpysworld/deb-get/main/deb-get | bash -s install deb-get
+    TEMP_DEB=$(mktemp /tmp/deb-get.XXXXXX.deb)
+    if curl -sL "https://github.com/wimpysworld/deb-get/releases/download/0.4.7/deb-get_0.4.7-1_all.deb" -o "${TEMP_DEB}"; then
+        apt-get install -y "${TEMP_DEB}"
+        rm -f "${TEMP_DEB}"
+    else
+        curl -sL https://raw.githubusercontent.com/wimpysworld/deb-get/main/deb-get | bash -s install deb-get
+    fi
+
     # Parchear clave de Spotify vigente para Debian 13 si existe la receta
     if [ -f "/etc/deb-get/01-main.d/spotify-client" ]; then
         sed -i 's/pubkey_C85668DF69375001.gpg/pubkey_5384CE82BA52C83A.gpg/' /etc/deb-get/01-main.d/spotify-client 2>/dev/null || true

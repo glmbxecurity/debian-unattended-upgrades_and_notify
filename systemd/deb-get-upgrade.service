@@ -1,0 +1,14 @@
+[Unit]
+Description=Actualizacion desatendida de paquetes gestionados por deb-get
+After=network-online.target
+Wants=network-online.target
+OnFailure=notify-failure@%n.service
+
+[Service]
+Type=oneshot
+Environment="DEBIAN_FRONTEND=noninteractive"
+ExecStart=/usr/bin/deb-get update --quiet
+ExecStart=/usr/bin/deb-get upgrade --dg-only
+ExecStartPost=/usr/local/bin/notify-success.sh %n
+StandardOutput=journal
+StandardError=journal

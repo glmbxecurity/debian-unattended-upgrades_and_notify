@@ -1,0 +1,10 @@
+[Unit]
+Description=Actualizar Flatpaks automaticamente
+After=network-online.target
+Wants=network-online.target
+OnFailure=notify-failure@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/flatpak update -y --noninteractive
+ExecStartPost=/usr/local/bin/notify-success.sh %n
